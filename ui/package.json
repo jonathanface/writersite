@@ -1,0 +1,33 @@
+{
+	"name": "jonathanface.com",
+	"version": "1.0.0",
+	"description": "author website",
+	"main": "index.js",
+	"author": "Jonathan Face",
+	"license": "ISC",
+	"devDependencies": {
+		"@babel/core": "^7.18.5",
+		"babel-eslint": "^10.1.0",
+		"babelify": "^10.0.0",
+		"browserify": "^17.0.0",
+		"eslint": "^8.18.0",
+		"eslint-config-google": "^0.14.0",
+		"eslint-plugin-react": "^7.30.1",
+		"tailwindcss": "^3.1.4"
+	},
+	"scripts": {
+		"checkAndFix": "npx eslint src/jsx/* --fix",
+		"compile": "browserify -d src/jsx/app.jsx -o public/js/bundle.js -t [ babelify --presets [ @babel/preset-env @babel/preset-react ] ]",
+		"css": "npx tailwindcss -i src/css/input.css -o src/css/output.css",
+		"minify": "minify public/js/bundle.js > public/js/bundle.min.js && minify src/css/output.css > public/css/main.css",
+		"copyStatic": "cpy . '../../public/img/' --cwd=src/img && cpy 'index.html' '../public/' --cwd=src",
+		"buildAll": "npm run checkAndFix && npm run compile && npm run css && npm run minify && npm run copyStatic",
+		"buildUI": "npm run compile && npm run css && npm run minify && npm run copyStatic"
+	},
+	"dependencies": {
+		"@babel/preset-env": "^7.18.2",
+		"@babel/preset-react": "^7.17.12",
+		"react": "^18.2.0",
+		"react-dom": "^18.2.0"
+	}
+}
