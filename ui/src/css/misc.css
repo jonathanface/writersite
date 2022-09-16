@@ -1,0 +1,23 @@
+html {
+    font-size:18px;
+    height:100%;
+}
+@media only screen and (max-width: 480px) {
+    html {
+        font-size: 16px;
+    }
+}
+
+#root, .root-child {
+    height:100%;
+}
+
+body {
+    font-family:"Gochi Hand","Roboto",sans-serif;
+    margin: 0 1rem 0 1rem;
+    height:100%;
+}
+
+.root-child > ul {
+    text-shadow: 4px 4px 0px rgba(0,0,0,0.2);
+}
