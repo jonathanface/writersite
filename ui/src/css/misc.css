@@ -21,3 +21,13 @@ body {
 .root-child > ul {
     text-shadow: 4px 4px 0px rgba(0,0,0,0.2);
 }
+
+.root-child > ul a {
+    text-transform: uppercase;
+    transition: all 0.2s ease-in-out;
+    cursor:pointer;
+}
+
+.root-child > ul a:hover {
+    text-shadow: 0 5px 15px rgba(145, 92, 182, .4);
+}

@@ -5,15 +5,20 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
+const (
+	uiDirectory = "./ui/public"
+	port        = ":8080"
+)
+
 func main() {
 	r := gin.Default()
 	r.RedirectTrailingSlash = true
 	r.SetTrustedProxies([]string{"192.168.0.1"})
-	r.Use(static.Serve("/", static.LocalFile("./ui/public", false)))
+	r.Use(static.Serve("/", static.LocalFile(uiDirectory, false)))
 	r.NoRoute(func(c *gin.Context) {
-		c.File("./ui/public/index.html")
+		c.File(uiDirectory + "/index.html")
 	})
-	err := r.Run(":8080")
+	err := r.Run(port)
 	if err != nil {
 		panic(err)
 	}
