@@ -1,20 +1,57 @@
 package main
 
 import (
+	"database/sql"
 	"github.com/gin-gonic/contrib/static"
 	"github.com/gin-gonic/gin"
+	_ "github.com/go-sql-driver/mysql"
+	"net/http"
+	"time"
 )
 
 const (
 	uiDirectory = "./ui/public"
-	port        = ":8080"
+	port        = ":3001"
+	apiPath     = "/api"
+	dbUser      = ""
+	dbPass      = ""
+	dbHost      = ""
+	dbName      = ""
 )
+
+func getAbout(c *gin.Context) {
+	type About struct {
+		ID        int       `json:"id" db:"id"`
+		UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+		Body      string    `json:"body" db:"body"`
+	}
+	var (
+		db    *sql.DB
+		err   error
+		about About
+	)
+	if db, err = sql.Open("mysql", dbUser+":"+dbPass+"@tcp("+dbHost+")/"+dbName+"?parseTime=true"); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+		return
+	}
+	defer db.Close()
+	if err = db.Ping(); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+		return
+	}
+	if err = db.QueryRow("SELECT id, updated_at, body FROM about ORDER BY updated_at ASC LIMIT 1").Scan(&about.ID, &about.UpdatedAt, &about.Body); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, about)
+}
 
 func main() {
 	r := gin.Default()
 	r.RedirectTrailingSlash = true
 	r.SetTrustedProxies([]string{"192.168.0.1"})
 	r.Use(static.Serve("/", static.LocalFile(uiDirectory, false)))
+	r.GET(apiPath+"/about", getAbout)
 	r.NoRoute(func(c *gin.Context) {
 		c.File(uiDirectory + "/index.html")
 	})

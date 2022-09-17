@@ -1,5 +1,6 @@
 import React from 'react';
 
+
 const Body = (section) => {
   switch (section.section) {
     case 'news':
