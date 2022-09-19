@@ -1,23 +1,39 @@
 import React from 'react';
+import {useState, useEffect} from 'react';
 
+const locations = ['news', 'books', 'about', 'contact'];
+const validateLocation = (location) => {
+  if (locations.includes(location)) {
+    return true;
+  }
+  return false;
+};
 
 const Body = (section) => {
-  switch (section.section) {
-    case 'news':
-      return <div className="grow-[999] basis-0 p-6">news</div>;
-      break;
-    case 'books':
-      return <div className="grow-[999] basis-0 p-6">books</div>;
-      break;
-    case 'about':
-      return <div className="grow-[999] basis-0 p-6">about</div>;
-      break;
-    case 'contact':
-      return <div className="grow-[999] basis-0 p-6">contact</div>;
-      break;
-    default:
-      return <div className="grow-[999] basis-0 p-6">contents</div>;
+  if (!validateLocation(section.section)) {
+    return <div className="grow-[999] basis-0 p-6"><b>NOT FOUND</b>></div>;
   }
+  const [content, setContent] = useState('content');
+
+  const fetchData = () => {
+    fetch('/api/' + section.section).then((response) => {
+      if (response.ok) {
+        return response.json();
+      }
+      setContent("something went wrong");
+      throw new Error("something went wrong");
+    }).then((data) => {
+      setContent(data.body);
+    }).catch((error) => {
+      console.error(error)
+    });
+  };
+
+  useEffect(() => {
+    fetchData();
+  }, [section.section]);
+
+  return <div className="grow-[999] basis-0 p-6">{content}</div>;
 };
 
 export {Body};
