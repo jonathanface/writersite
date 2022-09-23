@@ -14,7 +14,7 @@ html {
 
 body {
     font-family:"Gochi Hand","Roboto",sans-serif;
-    margin: 0 1rem 0 1rem;
+    margin: 0;
     height:100%;
 }
 
@@ -30,4 +30,22 @@ body {
 
 .root-child > ul a:hover {
     text-shadow: 0 5px 15px rgba(145, 92, 182, .4);
+}
+
+.book a {
+    text-shadow: 2px 2px 0px rgb(0 0 0 / 20%);
+}
+.book a:hover {
+    color:#c70600;
+}
+.book img {
+    border-radius: 5px;
+    border: 3px solid #000;
+}
+
+.sidebar {
+    box-shadow: 1px 0 10px 0px #000000;
+}
+.sidebarActive {
+    color:#2155de;
 }

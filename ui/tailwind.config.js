@@ -2,7 +2,12 @@
 module.exports = {
   content: ['public/**/*.{html,js}'],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        'gauchi': ['Gauchi+Hand', 'sans-serif'],
+        'roboto': ['Roboto', 'sans-serif'] 
+      },
+    },
   },
   plugins: [],
 }

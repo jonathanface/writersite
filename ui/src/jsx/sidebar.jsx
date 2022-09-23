@@ -1,29 +1,29 @@
 
 import React from 'react';
+import {useState} from 'react';
+
+const NavItem = (props) => {
+  return (
+    <h2>
+      <a onClick={(event) => {
+        props.setActive(props.label);
+        window.history.pushState({
+          'html': props.label,
+          'pageTitle': props.label,
+        }, props.label, './' + props.label);
+      }} className={props.activeSection === props.label ? 'sidebarActive' : ''}>{props.label.charAt(0).toUpperCase() + props.label.substring(1)}</a>
+    </h2>
+  );
+};
 
 const Sidebar = () => {
+  const [activeSection, setActiveSection] = useState(window.location.pathname.length > 1 ? window.location.pathname.substring(1) : 'news');
   return (
-    <ul className="grow md:basis-80 md:pt-6 border-r-4 md:border-r-8 border-r-black md:pl-6 pr-6 md:pr-0 text-[2.25rem] md:text-[3.75rem] leading-loose">
-      <li>
-        <h2><a onClick={() => {
-          window.history.pushState({'html': 'news', 'pageTitle': 'news'}, 'news', './news');
-        }}>News</a></h2>
-      </li>
-      <li>
-        <h2><a onClick={() => {
-          window.history.pushState({'html': 'books', 'pageTitle': 'books'}, 'books', './books');
-        }}>Books</a></h2>
-      </li>
-      <li>
-        <h2><a onClick={() => {
-          window.history.pushState({'html': 'about', 'pageTitle': 'about'}, 'about', './about');
-        }}>About</a></h2>
-      </li>
-      <li>
-        <h2><a onClick={() => {
-          window.history.pushState({'html': 'contact', 'pageTitle': 'contact'}, 'contact', './contact');
-        }}>Contact</a></h2>
-      </li>
+    <ul className="bg-[#F1F1F1] sidebar h-screen grow md:basis-80 md:pt-6 border-r-4 md:border-r-8 border-r-black md:pl-6 pr-6 md:pr-0 text-[2.25rem] md:text-[3.75rem] leading-loose">
+      <li key="news" className="sm:ml-8 ml-4"><NavItem label="news" activeSection={activeSection} setActive={setActiveSection}/></li>
+      <li key="books" className="sm:ml-8 ml-4"><NavItem label="books" activeSection={activeSection} setActive={setActiveSection}/></li>
+      <li key="about" className="sm:ml-8 ml-4"><NavItem label="about" activeSection={activeSection} setActive={setActiveSection}/></li>
+      <li key="contact" className="sm:ml-8 ml-4"><NavItem label="contact" activeSection={activeSection} setActive={setActiveSection}/></li>
     </ul>
   );
 };
