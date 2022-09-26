@@ -10,7 +10,7 @@ import (
 
 const (
 	uiDirectory = "./ui/public"
-	port        = ":4001"
+	port        = ":3001"
 	apiPath     = "/api"
 )
 

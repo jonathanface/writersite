@@ -83,7 +83,30 @@ func GetNews(c *gin.Context) {
 	c.JSON(http.StatusOK, newsEntries)
 }
 func GetContact(c *gin.Context) {
-	c.AbortWithStatusJSON(http.StatusNotFound, gin.H{"status": false, "message": "Page not found."})
+	type Contact struct {
+		ID        int       `json:"id" db:"id"`
+		UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
+		Body      string    `json:"body" db:"body"`
+	}
+	var (
+		db      *sql.DB
+		err     error
+		contact Contact
+	)
+	if db, err = dbConnect(); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+		return
+	}
+	defer db.Close()
+	if err = db.Ping(); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+		return
+	}
+	if err = db.QueryRow("SELECT id, updated_at, body FROM contact ORDER BY updated_at ASC LIMIT 1").Scan(&contact.ID, &contact.UpdatedAt, &contact.Body); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+		return
+	}
+	c.JSON(http.StatusOK, contact)
 }
 func GetBooks(c *gin.Context) {
 	type Book struct {

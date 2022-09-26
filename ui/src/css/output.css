@@ -636,6 +636,10 @@ video {
   position: absolute;
 }
 
+.m-auto {
+  margin: auto;
+}
+
 .ml-4 {
   margin-left: 1rem;
 }
@@ -750,6 +754,14 @@ video {
   padding-right: 1.5rem;
 }
 
+.text-left {
+  text-align: left;
+}
+
+.text-center {
+  text-align: center;
+}
+
 .text-justify {
   text-align: justify;
 }
@@ -758,17 +770,13 @@ video {
   font-family: Roboto, sans-serif;
 }
 
-.text-\[2rem\] {
-  font-size: 2rem;
+.text-\[1\.5rem\] {
+  font-size: 1.5rem;
 }
 
 .text-base {
   font-size: 1rem;
   line-height: 1.5rem;
-}
-
-.text-\[1\.5rem\] {
-  font-size: 1.5rem;
 }
 
 .text-\[2\.25rem\] {
@@ -785,6 +793,10 @@ video {
 
 .capitalize {
   text-transform: capitalize;
+}
+
+.leading-4 {
+  line-height: 1rem;
 }
 
 .leading-loose {
@@ -829,8 +841,12 @@ video {
     margin-left: 2rem;
   }
 
-  .sm\:max-w-\[500px\] {
-    max-width: 500px;
+  .sm\:max-w-\[800px\] {
+    max-width: 800px;
+  }
+
+  .sm\:max-w-\[600px\] {
+    max-width: 600px;
   }
 
   .sm\:max-w-\[400px\] {

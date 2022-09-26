@@ -32,6 +32,15 @@ body {
     text-shadow: 0 5px 15px rgba(145, 92, 182, .4);
 }
 
+.news a {
+    color:blue;
+    text-decoration:none;
+    transition: all 0.2s ease-in-out;
+}
+.news a:hover {
+    color:#22751c;
+}
+
 .book a {
     text-shadow: 2px 2px 0px rgb(0 0 0 / 20%);
 }
@@ -48,4 +57,23 @@ body {
 }
 .sidebarActive {
     color:#2155de;
+}
+
+.contactRow {
+    line-height:2rem;
+}
+
+.contactRow label {
+    display:inline-block;
+    min-width:200px;
+    text-align: right;
+    margin-right:1rem;
+}
+.contactRow a {
+    color:blue;
+    text-decoration:none;
+    transition: all 0.2s ease-in-out;
+}
+.contactRow a:hover {
+    color:#22751c;
 }
