@@ -65,7 +65,6 @@ body {
 
 .contactRow label {
     display:inline-block;
-    min-width:200px;
     text-align: right;
     margin-right:1rem;
 }

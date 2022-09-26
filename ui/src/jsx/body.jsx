@@ -17,11 +17,11 @@ const formatListItems = (data, type) => {
       response = data.map((item) => {
         return (
           <div className="sm:m-16 sm:max-w-[800px] news">
-            <div className="flex justify-between">
+            <div className="flex justify-between sm:leading-6 leading-5">
               <h2 className="text-[1.5rem]">{item.title}</h2>
               <span className="text-base leading-4">{new Date(item.posted_on).toDateString()}</span>
             </div>
-            <div className="p-8 pt-4 text-base font-roboto">{parse(item.post)}</div>
+            <div className="sm:p-8 pb-8 pt-4 text-base font-roboto">{parse(item.post)}</div>
           </div>);
       });
       break;
@@ -46,7 +46,7 @@ const Body = (section) => {
   if (!validateLocation(section.section)) {
     return <div className="grow-[999] basis-0 p-6"><b>NOT FOUND</b></div>;
   }
-  const [content, setContent] = useState('content');
+  const [content, setContent] = useState('');
 
   const fetchData = () => {
     fetch('/api/' + section.section).then((response) => {

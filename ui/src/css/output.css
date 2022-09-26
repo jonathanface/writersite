@@ -738,6 +738,10 @@ video {
   padding: 1.5rem;
 }
 
+.pb-8 {
+  padding-bottom: 2rem;
+}
+
 .pt-4 {
   padding-top: 1rem;
 }
@@ -793,6 +797,10 @@ video {
 
 .capitalize {
   text-transform: capitalize;
+}
+
+.leading-5 {
+  line-height: 1.25rem;
 }
 
 .leading-4 {
@@ -851,6 +859,14 @@ video {
 
   .sm\:max-w-\[400px\] {
     max-width: 400px;
+  }
+
+  .sm\:p-8 {
+    padding: 2rem;
+  }
+
+  .sm\:leading-6 {
+    line-height: 1.5rem;
   }
 }
 
