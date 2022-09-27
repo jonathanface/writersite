@@ -21,7 +21,7 @@ const formatListItems = (data, type) => {
               <h2 className="text-[1.5rem]">{item.title}</h2>
               <span className="text-base leading-4">{new Date(item.posted_on).toDateString()}</span>
             </div>
-            <div className="sm:p-8 pb-8 pt-4 text-base font-roboto">{parse(item.post)}</div>
+            <div className="sm:p-8 pb-8 pt-4 text-base font-roboto overflow-hidden">{parse(item.post)}</div>
           </div>);
       });
       break;
