@@ -29,8 +29,8 @@ const App = () => {
   const [location, setLocation] = useState(initialLocation);
 
   useEffect(() => {
-    window.addEventListener('locationchange', () => updatePage(setLocation));
-    return () => window.removeEventListener('locationchange', () => updatePage(setLocation));
+    window.addEventListener('popstate', () => updatePage(setLocation));
+    return () => window.removeEventListener('popstate', () => updatePage(setLocation));
   });
   return (
     <div className="root-child flex flex-wrap">

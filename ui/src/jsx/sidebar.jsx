@@ -6,11 +6,14 @@ const NavItem = (props) => {
   return (
     <h2>
       <button onClick={(event) => {
+        event.preventDefault();
         props.setActive(props.label);
         window.history.pushState({
           'html': props.label,
           'pageTitle': props.label,
         }, props.label, './' + props.label);
+        const navEvent = new PopStateEvent('popstate');
+        window.dispatchEvent(navEvent);
       }} className={props.activeSection === props.label ? 'sidebarActive' : ''}>{props.label.charAt(0).toUpperCase() + props.label.substring(1)}
       </button>
     </h2>
