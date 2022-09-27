@@ -8,6 +8,12 @@ import (
 	"time"
 )
 
+const templateDir = "ui/public/html/"
+
+type htmlTemplate struct {
+	Body string `json:"body"`
+}
+
 func dbConnect() (*sql.DB, error) {
 	dbUser := os.Getenv("dbUser")
 	dbPass := os.Getenv("dbPass")
@@ -17,30 +23,13 @@ func dbConnect() (*sql.DB, error) {
 }
 
 func GetAbout(c *gin.Context) {
-	type About struct {
-		ID        int       `json:"id" db:"id"`
-		UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
-		Body      string    `json:"body" db:"body"`
-	}
-	var (
-		db    *sql.DB
-		err   error
-		about About
-	)
-	if db, err = dbConnect(); err != nil {
+	htmlData, err := os.ReadFile(templateDir + "about.html")
+	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
-		return
 	}
-	defer db.Close()
-	if err = db.Ping(); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
-		return
-	}
-	if err = db.QueryRow("SELECT id, updated_at, body FROM about ORDER BY updated_at ASC LIMIT 1").Scan(&about.ID, &about.UpdatedAt, &about.Body); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
-		return
-	}
-	c.JSON(http.StatusOK, about)
+	contact := htmlTemplate{}
+	contact.Body = string(htmlData)
+	c.JSON(http.StatusOK, contact)
 }
 
 func GetNews(c *gin.Context) {
@@ -83,29 +72,12 @@ func GetNews(c *gin.Context) {
 	c.JSON(http.StatusOK, newsEntries)
 }
 func GetContact(c *gin.Context) {
-	type Contact struct {
-		ID        int       `json:"id" db:"id"`
-		UpdatedAt time.Time `json:"updated_at" db:"updated_at"`
-		Body      string    `json:"body" db:"body"`
-	}
-	var (
-		db      *sql.DB
-		err     error
-		contact Contact
-	)
-	if db, err = dbConnect(); err != nil {
+	htmlData, err := os.ReadFile(templateDir + "contact.html")
+	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
-		return
 	}
-	defer db.Close()
-	if err = db.Ping(); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
-		return
-	}
-	if err = db.QueryRow("SELECT id, updated_at, body FROM contact ORDER BY updated_at ASC LIMIT 1").Scan(&contact.ID, &contact.UpdatedAt, &contact.Body); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
-		return
-	}
+	contact := htmlTemplate{}
+	contact.Body = string(htmlData)
 	c.JSON(http.StatusOK, contact)
 }
 func GetBooks(c *gin.Context) {

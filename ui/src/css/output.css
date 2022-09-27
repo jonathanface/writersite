@@ -849,6 +849,10 @@ video {
     margin-left: 2rem;
   }
 
+  .sm\:max-w-\[300px\] {
+    max-width: 300px;
+  }
+
   .sm\:max-w-\[800px\] {
     max-width: 800px;
   }

@@ -63,11 +63,6 @@ body {
     line-height:2rem;
 }
 
-.contactRow label {
-    display:inline-block;
-    text-align: right;
-    margin-right:1rem;
-}
 .contactRow a {
     color:blue;
     text-decoration:none;

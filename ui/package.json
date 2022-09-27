@@ -20,7 +20,7 @@
 		"compile": "browserify -d src/jsx/app.jsx src/jsx/sidebar.jsx -o public/js/bundle.js -t [ babelify --presets [ @babel/preset-env @babel/preset-react ] ]",
 		"css": "npx tailwindcss -i src/css/input.css -o src/css/output.css",
 		"minify": "minify public/js/bundle.js > public/js/bundle.min.js && minify src/css/output.css > public/css/main.css",
-		"copyStatic": "cpy . '../../public/img/' --cwd=src/img && cpy 'index.html' '../public/' --cwd=src && cpy 'misc.css' '../../public/css/' --cwd=src/css",
+		"copyStatic": "cpy . '../../public/img/' --cwd=src/img && cpy . '../../public/html/' --cwd=src/html && cpy 'index.html' '../public/' --cwd=src && cpy 'misc.css' '../../public/css/' --cwd=src/css",
 		"buildAll": "npm run checkAndFix && npm run compile && npm run css && npm run minify && npm run copyStatic",
 		"buildUI": "npm run compile && npm run css && npm run minify && npm run copyStatic"
 	},
