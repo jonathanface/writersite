@@ -5,13 +5,14 @@ import {useState} from 'react';
 const NavItem = (props) => {
   return (
     <h2>
-      <a onClick={(event) => {
+      <button onClick={(event) => {
         props.setActive(props.label);
         window.history.pushState({
           'html': props.label,
           'pageTitle': props.label,
         }, props.label, './' + props.label);
-      }} className={props.activeSection === props.label ? 'sidebarActive' : ''}>{props.label.charAt(0).toUpperCase() + props.label.substring(1)}</a>
+      }} className={props.activeSection === props.label ? 'sidebarActive' : ''}>{props.label.charAt(0).toUpperCase() + props.label.substring(1)}
+      </button>
     </h2>
   );
 };
