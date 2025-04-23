@@ -3,7 +3,7 @@ name: Deploy to Amazon ECS
 on:
   push:
     branches:
-      - master
+      - main
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
@@ -64,8 +64,6 @@ jobs:
             --build-arg AWS_ACCESS_KEY_ID=${{ secrets.AWS_ACCESS_KEY_ID }} \
             --build-arg AWS_REGION=${{ env.AWS_REGION }} \
             --build-arg AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
-            --build-arg AWS_MAX_RETRIES=${{ secrets.AWS_MAX_RETRIES }} \
-            --build-arg AWS_BLOCKTABLE_MIN_WRITE_CAPACITY=${{ secrets.AWS_BLOCKTABLE_MIN_WRITE_CAPACITY }} \
             --build-arg VERSION=${{ github.sha }} \
             --build-arg MODE=${{ env.MODE }} \
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}
