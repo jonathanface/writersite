@@ -15,7 +15,6 @@ jonathanface
 # Dependency directories (remove the comment below to include it)
 # vendor/
 
-public/
 node_modules
 
 .DS_STORE
