@@ -8,7 +8,7 @@ on:
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
   MODE: ${{ github.ref_name }}
-  ECR_REPOSITORY: jface-personal
+  ECR_REPOSITORY: jonathanface/personal-site
 
 jobs:
   test:
