@@ -7,7 +7,7 @@ on:
 
 env:
   AWS_REGION: ${{ secrets.AWS_REGION }}
-  MODE: ${{ github.ref_name }}
+  MODE: "production"
   ECR_REPOSITORY: jonathanface/personal-site
 
 jobs:
