@@ -1,11 +1,19 @@
 package api
 
 import (
-	"database/sql"
-	"github.com/gin-gonic/gin"
+	"context"
+	"jonathanface/models"
 	"net/http"
 	"os"
-	"time"
+	"strings"
+
+	"github.com/aws/aws-sdk-go-v2/config"
+	"github.com/aws/aws-sdk-go-v2/feature/dynamodb/attributevalue"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb"
+	"github.com/aws/aws-sdk-go-v2/service/dynamodb/types"
+	"github.com/aws/aws-sdk-go/aws"
+	"github.com/gin-gonic/gin"
+	"github.com/joho/godotenv"
 )
 
 const templateDir = "ui/public/html/"
@@ -14,107 +22,81 @@ type htmlTemplate struct {
 	Body string `json:"body"`
 }
 
-func dbConnect() (*sql.DB, error) {
-	dbUser := os.Getenv("dbUser")
-	dbPass := os.Getenv("dbPass")
-	dbHost := os.Getenv("dbHost")
-	dbName := os.Getenv("dbName")
-	return sql.Open("mysql", dbUser+":"+dbPass+"@tcp("+dbHost+")/"+dbName+"?parseTime=true")
-}
-
-func GetAbout(c *gin.Context) {
-	htmlData, err := os.ReadFile(templateDir + "about.html")
-	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+func dbClient() (*dynamodb.Client, error) {
+	var err error
+	currentMode := models.AppMode(strings.ToLower(os.Getenv("MODE")))
+	if currentMode != models.ModeProduction && currentMode != models.ModeStaging {
+		if err = godotenv.Load(); err != nil {
+			return nil, err
+		}
 	}
-	contact := htmlTemplate{}
-	contact.Body = string(htmlData)
-	c.JSON(http.StatusOK, contact)
+	awsCfg, err := config.LoadDefaultConfig(context.TODO(), func(opts *config.LoadOptions) error {
+		opts.Region = os.Getenv("AWS_REGION")
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+	awsCfg.RetryMaxAttempts = 5
+	return dynamodb.NewFromConfig(awsCfg), nil
 }
 
 func GetNews(c *gin.Context) {
-	type News struct {
-		ID       int       `json:"id" db:"id"`
-		Title    string    `json:"title" db:"title"`
-		Post     string    `json:"post" db:"post"`
-		PostedOn time.Time `json:"posted_on" db:"posted_on"`
-		EditedOn time.Time `json:"edited_on" db:"edited_on"`
-	}
 	var (
-		db          *sql.DB
 		err         error
-		newsEntries []News
-		rows        *sql.Rows
+		newsEntries []models.News
 	)
 
-	if db, err = dbConnect(); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
-		return
-	}
-	defer db.Close()
-	if err = db.Ping(); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
-		return
-	}
-	if rows, err = db.Query("SELECT * FROM news ORDER BY posted_on DESC LIMIT 10"); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
-		return
-	}
-	defer rows.Close()
-	for rows.Next() {
-		news := News{}
-		if err = rows.Scan(&news.Title, &news.Post, &news.PostedOn, &news.EditedOn, &news.ID); err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
-			return
-		}
-		newsEntries = append(newsEntries, news)
-	}
-	c.JSON(http.StatusOK, newsEntries)
-}
-func GetContact(c *gin.Context) {
-	htmlData, err := os.ReadFile(templateDir + "contact.html")
+	dbClient, err := dbClient()
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
 	}
-	contact := htmlTemplate{}
-	contact.Body = string(htmlData)
-	c.JSON(http.StatusOK, contact)
+
+	out, err := dbClient.Query(context.TODO(), &dynamodb.QueryInput{
+		TableName:              aws.String("jonathanface_news"),
+		KeyConditionExpression: aws.String("id = :id"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":id": &types.AttributeValueMemberS{Value: "news"},
+		},
+		ScanIndexForward: aws.Bool(false),
+	})
+	if err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+	}
+	newsEntries = []models.News{}
+	if err = attributevalue.UnmarshalListOfMaps(out.Items, &newsEntries); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+	}
+	c.JSON(http.StatusOK, newsEntries)
+	return
 }
+
 func GetBooks(c *gin.Context) {
-	type Book struct {
-		ID          int       `json:"id" db:"id"`
-		Title       string    `json:"title" db:"title"`
-		Description string    `json:"description" db:"description"`
-		Img         string    `json:"img" db:"img"`
-		Link        string    `json:"link" db:"link"`
-		ReleasedOn  time.Time `json:"released_on" db:"released_on"`
-	}
 	var (
-		db    *sql.DB
-		err   error
-		books []Book
-		rows  *sql.Rows
+		err         error
+		bookEntries []models.Book
 	)
-	if db, err = dbConnect(); err != nil {
+
+	dbClient, err := dbClient()
+	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
-		return
 	}
-	if err = db.Ping(); err != nil {
+
+	out, err := dbClient.Query(context.TODO(), &dynamodb.QueryInput{
+		TableName:              aws.String("jonathanface_books2"),
+		KeyConditionExpression: aws.String("id = :id"),
+		ExpressionAttributeValues: map[string]types.AttributeValue{
+			":id": &types.AttributeValueMemberS{Value: "books"},
+		},
+		ScanIndexForward: aws.Bool(false),
+	})
+	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
-		return
 	}
-	if rows, err = db.Query("SELECT * FROM books ORDER BY released_on DESC"); err != nil {
+	bookEntries = []models.Book{}
+	if err = attributevalue.UnmarshalListOfMaps(out.Items, &bookEntries); err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
-		return
 	}
-	defer rows.Close()
-	for rows.Next() {
-		book := Book{}
-		if err = rows.Scan(&book.ID, &book.Title, &book.Description, &book.Img, &book.Link, &book.ReleasedOn); err != nil {
-			c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
-			return
-		}
-		books = append(books, book)
-	}
-	c.JSON(http.StatusOK, books)
+	c.JSON(http.StatusOK, bookEntries)
+	return
 }

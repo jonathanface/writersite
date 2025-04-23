@@ -7,27 +7,40 @@
 	"license": "ISC",
 	"devDependencies": {
 		"@babel/core": "^7.18.5",
+		"@types/node": "^22.14.1",
+		"@types/react": "^19.1.2",
+		"@types/react-dom": "^19.1.2",
+		"@vitejs/plugin-react": "^4.4.1",
 		"babel-eslint": "^10.1.0",
 		"babelify": "^10.0.0",
 		"browserify": "^17.0.0",
 		"eslint": "^8.18.0",
 		"eslint-config-google": "^0.14.0",
 		"eslint-plugin-react": "^7.30.1",
-		"tailwindcss": "^3.1.4"
+		"eslint-plugin-react-hooks": "^5.2.0",
+		"eslint-plugin-react-refresh": "^0.4.20",
+		"jsdom": "^26.1.0",
+		"tailwindcss": "^3.1.4",
+		"typescript": "^5.8.3",
+		"typescript-eslint": "^8.31.0",
+		"vitest": "^3.1.2"
 	},
 	"scripts": {
-		"checkAndFix": "npx eslint src/jsx/* --fix",
-		"compile": "browserify -d src/jsx/app.jsx src/jsx/sidebar.jsx -o public/js/bundle.js -t [ babelify --presets [ @babel/preset-env @babel/preset-react ] ]",
-		"css": "npx tailwindcss -i src/css/input.css -o src/css/output.css",
-		"minify": "minify public/js/bundle.js > public/js/bundle.min.js && minify src/css/output.css > public/css/main.css",
-		"copyStatic": "cpy . '../../public/img/' --cwd=src/img && cpy . '../../public/html/' --cwd=src/html && cpy 'index.html' '../public/' --cwd=src && cpy 'misc.css' '../../public/css/' --cwd=src/css",
-		"buildAll": "npm run checkAndFix && npm run compile && npm run css && npm run minify && npm run copyStatic",
-		"buildUI": "npm run compile && npm run css && npm run minify && npm run copyStatic"
+		"dev": "vite",
+		"build": "tsc -b && vite build",
+		"lint": "eslint . --fix",
+		"preview": "vite preview",
+		"test": "vitest --run",
+		"test-debug": "vitest --run --reporter=verbose",
+		"watch": "vitest",
+		"coverage": "vitest --coverage"
 	},
 	"dependencies": {
 		"@babel/preset-env": "^7.18.2",
 		"@babel/preset-react": "^7.17.12",
+		"html-react-parser": "^5.2.3",
 		"react": "^18.2.0",
-		"react-dom": "^18.2.0"
+		"react-dom": "^18.2.0",
+		"react-router-dom": "^7.5.1"
 	}
 }
