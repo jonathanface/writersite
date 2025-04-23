@@ -36,6 +36,7 @@ ENV GO111MODULE=auto \
     PATH=$GOPATH/bin:/usr/local/go/bin:/usr/local/bin:/usr/local/:$PATH
 
 ENV PORT=":80"
+ENV MODE="production"
 
 COPY --from=frontend-builder /app/dist /app/static/rd-ui/dist
 
