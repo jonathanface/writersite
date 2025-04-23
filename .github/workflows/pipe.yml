@@ -65,7 +65,7 @@ jobs:
             --build-arg AWS_REGION=${{ env.AWS_REGION }} \
             --build-arg AWS_SECRET_ACCESS_KEY=${{ secrets.AWS_SECRET_ACCESS_KEY }} \
             --build-arg VERSION=${{ github.sha }} \
-            --build-arg MODE=${{ env.MODE }} \
+            --build-arg MODE=${{ env.MODE }}
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}
           echo "$ECR_REGISTRY/$ECR_REPOSITORY:${{ github.sha }}" > image.txt
 
