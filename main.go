@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	uiDirectory = "./ui/public"
+	uiDirectory = "/ui/"
 	apiPath     = "/api"
 )
 
