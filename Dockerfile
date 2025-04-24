@@ -38,7 +38,7 @@ ENV GO111MODULE=auto \
 ENV PORT=":80"
 ENV MODE="production"
 
-COPY --from=frontend-builder /app/dist /app/static/rd-ui/dist
+COPY --from=frontend-builder /app/dist /ui
 
 COPY ./go.mod ./go.mod
 COPY ./go.sum ./go.sum
