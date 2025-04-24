@@ -15,7 +15,7 @@ import (
 )
 
 const (
-	uiDirectory = "/ui/"
+	uiDirectory = "/ui"
 	apiPath     = "/api"
 )
 
