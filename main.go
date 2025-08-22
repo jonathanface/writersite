@@ -6,6 +6,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path/filepath"
 	"strings"
 
 	"github.com/gin-gonic/contrib/static"
@@ -15,7 +16,7 @@ import (
 )
 
 const (
-	uiDirectory = "/ui"
+	uiDirectory = "ui"
 	apiPath     = "/api"
 )
 
@@ -23,25 +24,34 @@ func main() {
 	currentMode := models.AppMode(strings.ToLower(os.Getenv("MODE")))
 	if currentMode != models.ModeProduction && currentMode != models.ModeStaging {
 		if err := godotenv.Load(); err != nil {
-			log.Fatal("Error loading .env file")
+			log.Println("warning: .env not loaded:", err)
 		}
 	}
-	port := os.Getenv("PORT")
-	r := gin.Default()
-	r.RedirectTrailingSlash = true
-	r.SetTrustedProxies([]string{"192.168.0.1"})
+
+	r := gin.New()
+	r.Use(gin.Logger(), gin.Recovery())
+
 	r.GET("/health", func(c *gin.Context) {
 		c.JSON(http.StatusOK, nil)
 	})
-	r.Use(static.Serve("/", static.LocalFile(uiDirectory, false)))
 	r.GET(apiPath+"/news", api.GetNews)
 	r.GET(apiPath+"/books", api.GetBooks)
+	r.Use(static.Serve("/", static.LocalFile(uiDirectory, false)))
 
 	r.NoRoute(func(c *gin.Context) {
-		c.File(uiDirectory + "/index.html")
+		c.File(filepath.Join(uiDirectory, "index.html"))
 	})
-	err := r.Run(port)
-	if err != nil {
-		panic(err)
+
+	port := os.Getenv("PORT")
+	if port == "" {
+		port = "8443"
+	}
+	addr := port
+	if !strings.HasPrefix(port, ":") {
+		addr = ":" + port
+	}
+
+	if err := r.Run(addr); err != nil {
+		log.Fatal(err)
 	}
 }

@@ -16,74 +16,79 @@ import (
 	"github.com/joho/godotenv"
 )
 
-const templateDir = "ui/public/html/"
-
-type htmlTemplate struct {
-	Body string `json:"body"`
-}
-
-func dbClient() (*dynamodb.Client, error) {
-	var err error
+func newDynamoClient() (*dynamodb.Client, error) {
+	// Load .env for non-prod/staging
 	currentMode := models.AppMode(strings.ToLower(os.Getenv("MODE")))
 	if currentMode != models.ModeProduction && currentMode != models.ModeStaging {
-		if err = godotenv.Load(); err != nil {
-			return nil, err
-		}
+		_ = godotenv.Load()
 	}
-	awsCfg, err := config.LoadDefaultConfig(context.TODO(), func(opts *config.LoadOptions) error {
-		opts.Region = os.Getenv("AWS_REGION")
-		return nil
-	})
+
+	region := os.Getenv("AWS_REGION")
+	if region == "" {
+		region = "us-east-1"
+	}
+
+	awsCfg, err := config.LoadDefaultConfig(context.TODO(), config.WithRegion(region))
 	if err != nil {
 		return nil, err
 	}
 	awsCfg.RetryMaxAttempts = 5
+
 	return dynamodb.NewFromConfig(awsCfg), nil
 }
 
 func GetNews(c *gin.Context) {
-	var (
-		err         error
-		newsEntries []models.News
-	)
+	ctx := c.Request.Context()
 
-	dbClient, err := dbClient()
+	ddb, err := newDynamoClient()
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"ok": false, "error": err.Error()})
+		return
 	}
 
-	out, err := dbClient.Query(context.TODO(), &dynamodb.QueryInput{
-		TableName:              aws.String("jonathanface_news"),
+	table := os.Getenv("NEWS_TABLE")
+	if table == "" {
+		table = "jonathanface_news"
+	}
+
+	out, err := ddb.Query(ctx, &dynamodb.QueryInput{
+		TableName:              aws.String(table),
 		KeyConditionExpression: aws.String("id = :id"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":id": &types.AttributeValueMemberS{Value: "news"},
 		},
-		ScanIndexForward: aws.Bool(false),
+		ScanIndexForward: aws.Bool(false), // newest first if you have a sort key
 	})
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"ok": false, "error": err.Error()})
+		return
 	}
-	newsEntries = []models.News{}
-	if err = attributevalue.UnmarshalListOfMaps(out.Items, &newsEntries); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+
+	var newsEntries []models.News
+	if err := attributevalue.UnmarshalListOfMaps(out.Items, &newsEntries); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"ok": false, "error": err.Error()})
+		return
 	}
+
 	c.JSON(http.StatusOK, newsEntries)
-	return
 }
 
 func GetBooks(c *gin.Context) {
-	var (
-		err         error
-		bookEntries []models.Book
-	)
+	ctx := c.Request.Context()
 
-	dbClient, err := dbClient()
+	ddb, err := newDynamoClient()
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"ok": false, "error": err.Error()})
+		return
 	}
 
-	out, err := dbClient.Query(context.TODO(), &dynamodb.QueryInput{
-		TableName:              aws.String("jonathanface_books2"),
+	table := os.Getenv("BOOKS_TABLE")
+	if table == "" {
+		table = "jonathanface_books2"
+	}
+
+	out, err := ddb.Query(ctx, &dynamodb.QueryInput{
+		TableName:              aws.String(table),
 		KeyConditionExpression: aws.String("id = :id"),
 		ExpressionAttributeValues: map[string]types.AttributeValue{
 			":id": &types.AttributeValueMemberS{Value: "books"},
@@ -91,12 +96,15 @@ func GetBooks(c *gin.Context) {
 		ScanIndexForward: aws.Bool(false),
 	})
 	if err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"ok": false, "error": err.Error()})
+		return
 	}
-	bookEntries = []models.Book{}
-	if err = attributevalue.UnmarshalListOfMaps(out.Items, &bookEntries); err != nil {
-		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"status": false, "message": err.Error()})
+
+	var bookEntries []models.Book
+	if err := attributevalue.UnmarshalListOfMaps(out.Items, &bookEntries); err != nil {
+		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"ok": false, "error": err.Error()})
+		return
 	}
+
 	c.JSON(http.StatusOK, bookEntries)
-	return
 }

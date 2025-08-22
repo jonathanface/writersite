@@ -1,55 +1,60 @@
-FROM node:19-bullseye AS frontend-builder
-ARG VITE_STRIPE_KEY
-ARG VITE_MODE
+# -------- Frontend build --------
+FROM node:22-alpine AS frontend-builder
+
+WORKDIR /app/ui
+# Only copy manifest first for better caching
+COPY ui/package*.json ./
+RUN npm ci
+
+# Copy the rest of the UI
+COPY ui/ ./
+
+# Build with explicit mode (defaults to production if not provided)
+ARG VITE_MODE=production
+ENV NODE_ENV=production
+RUN npm run build -- --mode=${VITE_MODE}
+
+# -------- Backend build --------
+FROM golang:1.24-alpine AS backend-builder
+
+WORKDIR /src
+
+# Enable modules & static build
+ENV CGO_ENABLED=0 GOOS=linux
+
+# Cache deps
+COPY go.mod go.sum ./
+RUN go mod download
+
+# Copy backend source
+COPY api ./api
+COPY models ./models
+COPY main.go ./main.go
+
+# Bring in built UI assets
+COPY --from=frontend-builder /app/ui/dist ./ui
+
+# Build optimized binary
+RUN go build -ldflags="-s -w" -o /out/app ./main.go
+
+# -------- Minimal runtime --------
+FROM gcr.io/distroless/base-debian12:nonroot
+
 WORKDIR /app
-COPY ./ui/package*.json ./
-RUN npm install
-COPY ./ui/src ./src
-COPY ./ui/index.html ./
-COPY ./ui/public ./public
-COPY ./ui/tsconfig.json ./
-COPY ./ui/tsconfig.app.json ./
-COPY ./ui/tsconfig.node.json ./
-COPY ./ui/vite.config.ts ./
-RUN npm run build
+# Copy binary and UI
+COPY --from=backend-builder /out/app ./app
+COPY --from=backend-builder /src/ui ./ui
 
-FROM golang:1.24 AS backend-builder
-# Install wkhtmltox dependencies
-RUN apt-get update && \
-    apt-get install -y --no-install-recommends \
-    fontconfig \
-    libjpeg62-turbo \
-    libx11-6 \
-    libxcb1 \
-    libxext6 \
-    libxrender1 \
-    xfonts-75dpi \
-    xfonts-base \
-    pandoc \
-    && rm -rf /var/lib/apt/lists/*
+# Runtime env
+ENV PORT=8080 \
+    MODE=production \
+    GIN_MODE=release
 
-WORKDIR /app
+EXPOSE 8080
+USER nonroot:nonroot
 
-# Set environment variables for Go
-ENV GO111MODULE=auto \
-    GOPATH=/go \
-    PATH=$GOPATH/bin:/usr/local/go/bin:/usr/local/bin:/usr/local/:$PATH
+# Optional healthcheck (uncomment if you switch to an image with /bin/sh + curl)
+HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
+  CMD wget -qO- http://127.0.0.1:8080/health || exit 1
 
-ENV PORT=":80"
-ENV MODE="production"
-
-COPY --from=frontend-builder /app/dist /ui
-
-COPY ./go.mod ./go.mod
-COPY ./go.sum ./go.sum
-COPY ./api ./api
-COPY ./models ./models
-COPY ./main.go ./main.go
-
-RUN go mod tidy
-
-RUN mkdir -p ./tmp
-RUN go build -o /jonathanface
-#CMD ["sleep", "infinity"]
-CMD ["/jonathanface"]
-
+CMD ["./app"]
