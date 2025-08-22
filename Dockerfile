@@ -46,11 +46,11 @@ COPY --from=backend-builder /out/app ./app
 COPY --from=backend-builder /src/ui ./ui
 
 # Runtime env
-ENV PORT=8080 \
+ENV PORT=80 \
     MODE=production \
     GIN_MODE=release
 
-EXPOSE 8080
+EXPOSE 80
 USER nonroot:nonroot
 
 CMD ["./app"]
