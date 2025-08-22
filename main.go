@@ -20,6 +20,26 @@ const (
 	apiPath     = "/api"
 )
 
+// main.go (add this near the top, before main)
+
+func buildRouter(newsHandler gin.HandlerFunc, booksHandler gin.HandlerFunc) *gin.Engine {
+	r := gin.New()
+	r.Use(gin.Logger(), gin.Recovery())
+
+	r.GET("/health", func(c *gin.Context) {
+		c.JSON(http.StatusOK, nil)
+	})
+	r.GET(apiPath+"/news", newsHandler)
+	r.GET(apiPath+"/books", booksHandler)
+
+	// static UI + SPA fallback
+	r.Use(static.Serve("/", static.LocalFile(uiDirectory, false)))
+	r.NoRoute(func(c *gin.Context) {
+		c.File(filepath.Join(uiDirectory, "index.html"))
+	})
+	return r
+}
+
 func main() {
 	currentMode := models.AppMode(strings.ToLower(os.Getenv("MODE")))
 	if currentMode != models.ModeProduction && currentMode != models.ModeStaging {
@@ -28,19 +48,7 @@ func main() {
 		}
 	}
 
-	r := gin.New()
-	r.Use(gin.Logger(), gin.Recovery())
-
-	r.GET("/health", func(c *gin.Context) {
-		c.JSON(http.StatusOK, nil)
-	})
-	r.GET(apiPath+"/news", api.GetNews)
-	r.GET(apiPath+"/books", api.GetBooks)
-	r.Use(static.Serve("/", static.LocalFile(uiDirectory, false)))
-
-	r.NoRoute(func(c *gin.Context) {
-		c.File(filepath.Join(uiDirectory, "index.html"))
-	})
+	r := buildRouter(api.GetNews, api.GetBooks)
 
 	port := os.Getenv("PORT")
 	if port == "" {

@@ -16,7 +16,13 @@ import (
 	"github.com/joho/godotenv"
 )
 
-func newDynamoClient() (*dynamodb.Client, error) {
+type ddbAPI interface {
+	Query(ctx context.Context, params *dynamodb.QueryInput, optFns ...func(*dynamodb.Options)) (*dynamodb.QueryOutput, error)
+}
+
+var newDynamoClientFn = newDynamoClient
+
+func newDynamoClient() (ddbAPI, error) {
 	// Load .env for non-prod/staging
 	currentMode := models.AppMode(strings.ToLower(os.Getenv("MODE")))
 	if currentMode != models.ModeProduction && currentMode != models.ModeStaging {
@@ -40,7 +46,7 @@ func newDynamoClient() (*dynamodb.Client, error) {
 func GetNews(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	ddb, err := newDynamoClient()
+	ddb, err := newDynamoClientFn()
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"ok": false, "error": err.Error()})
 		return
@@ -76,7 +82,7 @@ func GetNews(c *gin.Context) {
 func GetBooks(c *gin.Context) {
 	ctx := c.Request.Context()
 
-	ddb, err := newDynamoClient()
+	ddb, err := newDynamoClientFn()
 	if err != nil {
 		c.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{"ok": false, "error": err.Error()})
 		return

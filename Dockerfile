@@ -46,15 +46,14 @@ COPY --from=backend-builder /out/app ./app
 COPY --from=backend-builder /src/ui ./ui
 
 # Runtime env
-ENV PORT=8080 \
+ENV PORT=80 \
     MODE=production \
     GIN_MODE=release
 
-EXPOSE 8080
+EXPOSE 80
 USER nonroot:nonroot
 
-# Optional healthcheck (uncomment if you switch to an image with /bin/sh + curl)
 HEALTHCHECK --interval=30s --timeout=3s --start-period=10s --retries=3 \
-  CMD wget -qO- http://127.0.0.1:8080/health || exit 1
+  CMD wget -qO- http://127.0.0.1:80/health || exit 1
 
 CMD ["./app"]

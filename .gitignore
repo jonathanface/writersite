@@ -1,5 +1,5 @@
 # Binaries for programs and plugins
-jonathanface
+cmd
 *.exe
 *.exe~
 *.dll
