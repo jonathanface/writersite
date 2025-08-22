@@ -51,6 +51,5 @@ ENV PORT=80 \
     GIN_MODE=release
 
 EXPOSE 80
-USER nonroot:nonroot
 
 CMD ["./app"]
