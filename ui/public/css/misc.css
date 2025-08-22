@@ -5,7 +5,11 @@ html {
 
 @media only screen and (max-width: 480px) {
     html {
-        font-size: 16px;
+        font-size: 14px;
+    }
+    .root-child .sidebar h2,
+    .root-child .news h2 {
+        font-size:1.1rem;
     }
 }
 
@@ -32,11 +36,6 @@ body {
 
 .root-child>ul button:hover {
     text-shadow: 0 5px 15px rgba(145, 92, 182, .4);
-}
-
-.news,
-.books {
-    min-width: 400px;
 }
 
 .news a,

@@ -8,14 +8,6 @@ import { Contact } from './Contact';
 
 export const Body = () => {
 
-  //const [content, setContent] = useState('');
-
-
-
-  // useEffect(() => {
-  //   fetchData();
-  // }, [section.section]);
-
   return (
     <div className="overflow-auto h-screen grow-[999] basis-0 p-6">
       <Routes>
