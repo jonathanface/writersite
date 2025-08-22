@@ -15,6 +15,7 @@ export const Contact = () => {
 
         } catch (error: unknown) {
             console.error(error);
+            setContent("The site is experiencing technical difficulties. Please try again later.")
         }
     };
 
