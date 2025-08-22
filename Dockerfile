@@ -38,7 +38,7 @@ COPY --from=frontend-builder /app/ui/dist ./ui
 RUN go build -ldflags="-s -w" -o /out/app ./main.go
 
 # -------- Minimal runtime --------
-FROM gcr.io/distroless/base-debian12:nonroot
+FROM gcr.io/distroless/base-debian12 
 
 WORKDIR /app
 # Copy binary and UI
