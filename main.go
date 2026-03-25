@@ -20,8 +20,6 @@ const (
 	apiPath     = "/api"
 )
 
-// main.go (add this near the top, before main)
-
 func buildRouter(newsHandler gin.HandlerFunc, booksHandler gin.HandlerFunc) *gin.Engine {
 	r := gin.New()
 	r.Use(gin.Logger(), gin.Recovery())
@@ -31,6 +29,17 @@ func buildRouter(newsHandler gin.HandlerFunc, booksHandler gin.HandlerFunc) *gin
 	})
 	r.GET(apiPath+"/news", newsHandler)
 	r.GET(apiPath+"/books", booksHandler)
+
+	// Public downloads — serves files from S3 via presigned URL
+	r.GET("/downloads/*filepath", api.GetDownload)
+
+	// Short URLs for download slugs
+	for slug := range api.Downloads {
+		s := slug // capture loop variable
+		r.GET("/"+s, func(c *gin.Context) {
+			c.Redirect(http.StatusMovedPermanently, "/downloads/"+s)
+		})
+	}
 
 	// static UI + SPA fallback
 	r.Use(static.Serve("/", static.LocalFile(uiDirectory, false)))
